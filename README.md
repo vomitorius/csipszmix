@@ -101,10 +101,24 @@ npm run dev
 
 Nyisd meg a böngészőben: **http://localhost:3000**
 
+## 🚢 Deployment (Production)
+
+Az alkalmazás Vercel-re való telepítéséhez kövesd a részletes útmutatót:
+
+👉 **[VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)** - Vercel deployment lépésről lépésre
+
+### Gyors deployment checklist:
+1. ✅ Supabase projekt beállítva
+2. ✅ Vercel projekt létrehozva és repo importálva
+3. ✅ Környezeti változók beállítva Vercel-en
+4. ✅ `vercel.json` fájl a repo root-ban (már benne van)
+5. ✅ Deploy gomb megnyomva
+
 ## 📚 Fontos fájlok és dokumentációk
 
 - **[csipszmix_spec.md](./csipszmix_spec.md)** - Teljes műszaki specifikáció
 - **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Lépésről lépésre Supabase setup
+- **[VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)** - Vercel deployment útmutató
 - **[apps/web/README.md](./apps/web/README.md)** - Nuxt app specifikus dokumentáció
 
 ## 🔧 Elérhető parancsok
