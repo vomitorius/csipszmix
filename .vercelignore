@@ -4,7 +4,8 @@ apps/web/node_modules
 
 # Build artifacts
 apps/web/.nuxt
-# apps/web/.output  # COMMENTED OUT: Vercel needs this directory for deployment
+# apps/web/.output  # Not used with Vercel preset
+# apps/web/.vercel  # IMPORTANT: Vercel needs this directory for deployment
 apps/web/dist
 
 # Environment files

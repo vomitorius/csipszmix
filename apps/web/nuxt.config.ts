@@ -8,6 +8,10 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
   ],
 
+  nitro: {
+    preset: 'vercel'
+  },
+
   runtimeConfig: {
     // Server-side only
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
