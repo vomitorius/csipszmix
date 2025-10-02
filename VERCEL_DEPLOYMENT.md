@@ -128,6 +128,18 @@ Ha sikeres:
 2. Nézd meg, hogy a `buildCommand` is a `cd apps/web` paranccsal kezdődik-e
 3. Próbáld újra deployolni
 
+### ❌ "No Output Directory named 'public' found"
+
+**Oka:**
+- A `.vercelignore` fájl blokkolja az output directory-t
+- Hibás `outputDirectory` beállítás a `vercel.json`-ban
+
+**Megoldás:**
+1. Ellenőrizd, hogy a `.vercelignore` fájl **nem** tartalmazza az `apps/web/.output` sort
+2. Ha tartalmazza, kommenteld ki vagy töröld azt a sort
+3. Ellenőrizd a `vercel.json`-ban az `outputDirectory` értékét: `apps/web/.output/public`
+4. Próbáld újra deployolni
+
 ### ❌ Üres oldal / "Application error"
 
 **Oka:**
