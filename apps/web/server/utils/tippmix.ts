@@ -135,9 +135,24 @@ export async function saveEventsToDatabase(events: TippmixEvent[]): Promise<void
   const supabase = getSupabaseClient()
   
   try {
+    // Transform events to match database schema (snake_case columns)
+    const dbEvents = events.map(event => ({
+      id: event.id,
+      league: event.league,
+      home: event.home,
+      away: event.away,
+      start_time: event.startTime,
+      odds_home: event.odds.home,
+      odds_draw: event.odds.draw,
+      odds_away: event.odds.away,
+      status: event.status || 'upcoming',
+      created_at: event.createdAt,
+      updated_at: event.updatedAt
+    }))
+
     const { error } = await supabase
       .from('events')
-      .upsert(events, {
+      .upsert(dbEvents, {
         onConflict: 'id'
       })
     
