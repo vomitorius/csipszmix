@@ -37,8 +37,8 @@ A projekt import képernyőn állítsd be a következőket:
 #### Build and Output Settings
 Ezeket a `vercel.json` automatikusan kezeli, de ellenőrizd:
 - **Build Command**: `cd apps/web && npm install && npm run build`
-- **Output Directory**: `apps/web/.output/public`
 - **Install Command**: `cd apps/web && npm install`
+- **Output Directory**: Hagyd üresen - a Nuxt 3 Vercel preset automatikusan kezeli
 
 ### 4. Környezeti változók beállítása
 
@@ -131,13 +131,14 @@ Ha sikeres:
 ### ❌ "No Output Directory named 'public' found"
 
 **Oka:**
-- A `.vercelignore` fájl blokkolja az output directory-t
-- Hibás `outputDirectory` beállítás a `vercel.json`-ban
+- Hibás `outputDirectory` beállítás a `vercel.json`-ban (Nuxt 3 SSR alkalmazásoknál nem kell)
+- A `.vercelignore` fájl blokkolja a `.vercel/output/` directory-t
+- Hiányzó vagy helytelen Vercel preset a `nuxt.config.ts`-ben
 
 **Megoldás:**
-1. Ellenőrizd, hogy a `.vercelignore` fájl **nem** tartalmazza az `apps/web/.output` sort
-2. Ha tartalmazza, kommenteld ki vagy töröld azt a sort
-3. Ellenőrizd a `vercel.json`-ban az `outputDirectory` értékét: `apps/web/.output/public`
+1. Ellenőrizd, hogy a `nuxt.config.ts` tartalmazza: `nitro: { preset: 'vercel' }`
+2. Ellenőrizd, hogy a `vercel.json` **NEM** tartalmaz `outputDirectory` beállítást
+3. Ellenőrizd, hogy a `.vercelignore` fájl **nem** blokkolja az `apps/web/.vercel` könyvtárat
 4. Próbáld újra deployolni
 
 ### ❌ Üres oldal / "Application error"
@@ -149,7 +150,8 @@ Ha sikeres:
 **Megoldás:**
 1. Ellenőrizd a Vercel build logokban az output directory-t
 2. Nézd meg a Runtime Logs-ot a hibákért
-3. Ellenőrizd, hogy az `.output/public` könyvtár tartalmaz-e fájlokat a build után
+3. Ellenőrizd, hogy a `.vercel/output/` könyvtár létrejött-e a build után
+4. Ellenőrizd, hogy a `nuxt.config.ts` tartalmazza a Vercel preset-et
 
 ### ❌ "Supabase connection error"
 
