@@ -1,4 +1,4 @@
-# TipMix AI ⚽
+# Tipp AI ⚽
 
 AI-alapú futball mérkőzés előrejelző és tippszorzó rendszer Tippmix eseményekhez.
 
@@ -6,7 +6,7 @@ AI-alapú futball mérkőzés előrejelző és tippszorzó rendszer Tippmix esem
 
 ## 🎯 Projekt áttekintés
 
-A TipMix AI egy nyílt forráskódú alkalmazás, amely:
+A Tipp AI egy nyílt forráskódú alkalmazás, amely:
 - Lekérdezi a **Tippmix futball eseményeket** és odds-okat
 - Automatikusan felkutatja a releváns webes forrásokat (hírek, statisztikák)
 - **AI/LLM alapú elemzést** végez (sérülések, formák, előzmények)
@@ -202,6 +202,6 @@ Ha kérdésed van, nyiss egy GitHub Issue-t vagy nézd meg a [csipszmix_spec.md]
 
 ---
 
-**Készítette:** TipMix AI Contributors  
+**Készítette:** Tipp AI Contributors  
 **Verzió:** M1 (Alpha)  
 **Utolsó frissítés:** 2025-01
