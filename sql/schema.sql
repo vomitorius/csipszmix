@@ -130,3 +130,41 @@ CREATE TRIGGER update_predictions_updated_at BEFORE UPDATE ON predictions
 
 CREATE TRIGGER update_tickets_updated_at BEFORE UPDATE ON tickets
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Vector similarity search function for RAG
+-- This function enables semantic search through document chunks
+CREATE OR REPLACE FUNCTION search_chunks(
+  query_embedding vector(384),
+  event_id_filter text,
+  match_threshold float DEFAULT 0.3,
+  match_count int DEFAULT 5
+)
+RETURNS TABLE (
+  id uuid,
+  content text,
+  source_id uuid,
+  source_url text,
+  distance float
+)
+LANGUAGE sql STABLE
+AS $$
+  SELECT 
+    c.id,
+    c.content,
+    c.source_id,
+    s.url as source_url,
+    (c.embedding <=> query_embedding) as distance
+  FROM chunks c
+  JOIN sources s ON c.source_id = s.id
+  WHERE s.event_id = event_id_filter
+    AND (c.embedding <=> query_embedding) < match_threshold
+  ORDER BY distance
+  LIMIT match_count;
+$$;
+
+-- Note: The embedding dimension (384) matches text-embedding-3-small model
+-- If using a different model, adjust the vector size:
+--   text-embedding-3-large: vector(1536)
+--   text-embedding-ada-002: vector(1536)
+--   nomic-embed-text: vector(768)
+--   bge-small-en-v1.5: vector(384)
