@@ -197,7 +197,31 @@
         </div>
       </div>
 
-      <PredictionView :prediction="undefined" />
+      <!-- Prediction Section -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">AI Predikció</h2>
+          <button
+            v-if="!prediction || !loadingPrediction"
+            @click="generatePrediction"
+            :disabled="loadingPrediction"
+            class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ prediction ? 'Újragenerálás' : 'Predikció Generálása' }}
+          </button>
+        </div>
+
+        <div v-if="loadingPrediction" class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <p class="mt-2 text-gray-600">Predikció generálása...</p>
+        </div>
+
+        <div v-else-if="predictionError" class="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p class="text-red-800">{{ predictionError }}</p>
+        </div>
+
+        <PredictionView v-else :prediction="prediction" />
+      </div>
     </div>
   </div>
 </template>
@@ -212,6 +236,9 @@ const error = ref<string | null>(null)
 const sources = ref<any[]>([])
 const facts = ref<any>({})
 const loadingSources = ref(false)
+const prediction = ref<any>(null)
+const loadingPrediction = ref(false)
+const predictionError = ref<string | null>(null)
 
 const hasFacts = computed(() => {
   return Object.values(facts.value).some((arr: any) => arr && arr.length > 0)
@@ -280,6 +307,55 @@ async function loadSourcesAndFacts() {
   }
 }
 
+async function loadPrediction() {
+  if (!event.value) return
+  
+  try {
+    // Check if prediction exists
+    const data = await $fetch('/api/predict', {
+      method: 'POST',
+      body: {
+        event_id: event.value.id,
+        force_refresh: false
+      }
+    })
+    
+    if (data.prediction) {
+      prediction.value = data.prediction
+    }
+  } catch (e: any) {
+    // Prediction doesn't exist yet, that's ok
+    if (e.statusCode !== 404) {
+      console.error('Error loading prediction:', e)
+    }
+  }
+}
+
+async function generatePrediction() {
+  if (!event.value) return
+  
+  loadingPrediction.value = true
+  predictionError.value = null
+  
+  try {
+    const data = await $fetch('/api/predict', {
+      method: 'POST',
+      body: {
+        event_id: event.value.id,
+        strategy: 'ensemble',
+        force_refresh: true
+      }
+    })
+    
+    prediction.value = data.prediction
+  } catch (e: any) {
+    console.error('Error generating prediction:', e)
+    predictionError.value = e.data?.message || e.message || 'Hiba történt a predikció generálása közben'
+  } finally {
+    loadingPrediction.value = false
+  }
+}
+
 onMounted(async () => {
   const id = route.params.id as string
   try {
@@ -287,8 +363,11 @@ onMounted(async () => {
     if (!event.value) {
       error.value = 'Az esemény nem található'
     } else {
-      // Load sources and facts
-      await loadSourcesAndFacts()
+      // Load sources, facts, and prediction in parallel
+      await Promise.all([
+        loadSourcesAndFacts(),
+        loadPrediction()
+      ])
     }
   } catch (e: any) {
     error.value = e.message || 'Hiba történt az esemény betöltése közben'

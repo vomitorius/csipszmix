@@ -20,6 +20,7 @@
     "jsdom": "^27.0.0",
     "nuxt": "^3.19.2",
     "openai": "^6.1.0",
+    "papaparse": "^5.5.3",
     "pinia": "^3.0.3",
     "playwright": "^1.55.1",
     "turndown": "^7.2.1",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.9.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
+    "@types/papaparse": "^5.3.16",
     "eslint": "^9.36.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
