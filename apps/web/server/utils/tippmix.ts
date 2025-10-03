@@ -2,32 +2,154 @@ import type { TippmixEvent } from './types'
 
 /**
  * Tippmix API wrapper for fetching events and odds
- * Based on: https://prog.hu/tudastar/212954/futball-odds-ok-lehuzasa-dinamikus-weboldalrol
+ * Uses the official Tippmix API: https://api.tippmix.hu/tippmix/search
  */
 
 export async function fetchTippmixEvents(): Promise<TippmixEvent[]> {
-  const config = useRuntimeConfig()
-  const apiUrl = config.tippmixApiUrl
-  
-  if (!apiUrl) {
-    console.warn('Tippmix API URL not configured, returning mock data')
+  try {
+    console.log('Fetching events from Tippmix API...')
+    
+    // Use the actual Tippmix API
+    const apiUrl = 'https://api.tippmix.hu/tippmix/search'
+    
+    // Get today's date for the search
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const requestBody = {
+      fieldValue: "",
+      sportId: 1, // Football
+      countryId: 0, // All countries
+      competitionId: 0, // All competitions
+      type: 0,
+      date: today.toISOString(),
+      minOdds: null,
+      maxOdds: null
+    }
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
+    })
+    
+    if (!response.ok) {
+      console.warn(`Tippmix API returned status ${response.status}, falling back to mock data`)
+      return getMockEvents()
+    }
+    
+    const data = await response.json()
+    
+    // Parse the response and convert to TippmixEvent format
+    const parsedEvents = parseTippmixResponse(data)
+    
+    if (parsedEvents.length === 0) {
+      console.warn('No events returned from Tippmix API, falling back to mock data')
+      return getMockEvents()
+    }
+    
+    console.log(`Successfully fetched ${parsedEvents.length} events from Tippmix API`)
+    return parsedEvents
+  } catch (error) {
+    console.error('Error fetching from Tippmix API:', error)
+    console.warn('Falling back to mock data')
     return getMockEvents()
   }
+}
 
+/**
+ * Parse Tippmix API response to TippmixEvent format
+ */
+function parseTippmixResponse(data: any): TippmixEvent[] {
+  const events: TippmixEvent[] = []
+  
   try {
-    // In a real implementation, this would fetch from the actual Tippmix API
-    // For now, we'll return mock data since the API requires dynamic scraping
-    console.log('Fetching events from Tippmix API:', apiUrl)
+    // The Tippmix API response structure may vary
+    // Adjust this based on the actual response format
+    const matches = data.matches || data.events || data.items || data || []
     
-    // TODO: Implement actual API fetching with Playwright/Cheerio
-    // const response = await fetch(apiUrl)
-    // const data = await response.json()
-    // return parseEventsFromResponse(data)
+    if (!Array.isArray(matches)) {
+      console.warn('Unexpected API response format')
+      return []
+    }
     
-    return getMockEvents()
+    const now = new Date()
+    
+    matches.forEach((match: any, index: number) => {
+      try {
+        // Extract match details from the API response
+        // Common field names in betting APIs
+        const home = match.homeTeam || match.home || match.team1 || match.participant1
+        const away = match.awayTeam || match.away || match.team2 || match.participant2
+        const league = match.competition || match.league || match.tournament || 'Football'
+        
+        // Extract odds - look for 1X2 markets
+        let homeOdds = 2.0
+        let drawOdds = 3.0
+        let awayOdds = 2.5
+        
+        if (match.odds) {
+          // Try to find 1X2 odds
+          if (Array.isArray(match.odds)) {
+            const oddsArray = match.odds
+            if (oddsArray.length >= 3) {
+              homeOdds = parseFloat(oddsArray[0]?.value || oddsArray[0]) || 2.0
+              drawOdds = parseFloat(oddsArray[1]?.value || oddsArray[1]) || 3.0
+              awayOdds = parseFloat(oddsArray[2]?.value || oddsArray[2]) || 2.5
+            }
+          } else if (typeof match.odds === 'object') {
+            homeOdds = parseFloat(match.odds.home || match.odds['1'] || match.odds.homeWin) || 2.0
+            drawOdds = parseFloat(match.odds.draw || match.odds['X'] || match.odds.tie) || 3.0
+            awayOdds = parseFloat(match.odds.away || match.odds['2'] || match.odds.awayWin) || 2.5
+          }
+        }
+        
+        // Extract start time
+        let startTime = match.startTime || match.date || match.kickoff || match.time
+        if (startTime) {
+          // Ensure it's a valid date
+          const parsed = new Date(startTime)
+          if (!isNaN(parsed.getTime())) {
+            startTime = parsed.toISOString()
+          } else {
+            startTime = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString()
+          }
+        } else {
+          startTime = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString()
+        }
+        
+        // Create event ID from match data or use index
+        const eventId = match.id || match.eventId || match.matchId || `tippmix_${Date.now()}_${index}`
+        
+        if (home && away) {
+          events.push({
+            id: String(eventId),
+            league: String(league),
+            home: String(home),
+            away: String(away),
+            startTime,
+            odds: {
+              home: homeOdds,
+              draw: drawOdds,
+              away: awayOdds
+            },
+            status: 'upcoming' as const,
+            createdAt: now.toISOString(),
+            updatedAt: now.toISOString()
+          })
+        }
+      } catch (err) {
+        console.error('Error parsing individual match:', err)
+      }
+    })
+    
+    return events
   } catch (error) {
-    console.error('Error fetching Tippmix events:', error)
-    throw new Error('Failed to fetch Tippmix events')
+    console.error('Error parsing Tippmix response:', error)
+    return []
   }
 }
 

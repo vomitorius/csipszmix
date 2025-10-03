@@ -18,8 +18,9 @@ A Tipp AI egy nyílt forráskódú alkalmazás, amely:
 - **Frontend**: Nuxt 3, Vue 3, TailwindCSS
 - **Backend**: Nuxt Nitro API routes, TypeScript
 - **Database**: Supabase (PostgreSQL + pgvector)
-- **AI/LLM**: Ollama (helyi futtatás), Llama 3.1, Qwen 2.5
-- **Scraping**: Playwright, Crawl4AI (későbbi fázisokban)
+- **AI/LLM**: OpenAI (GPT-4o-mini), Groq, Together.ai, vagy Ollama (helyi futtatás)
+- **Scraping**: Playwright, @mozilla/readability, turndown
+- **Embeddings**: OpenAI text-embedding-3-small (384 dimensions)
 
 ## 📁 Repo struktúra
 
@@ -90,7 +91,44 @@ NUXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NUXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
 TIPP_API_URL=https://odds.tippmix.hu
-OLLAMA_URL=http://localhost:11434
+
+# LLM Provider (M2 features)
+OPENAI_API_KEY=sk-...
+LLM_PROVIDER=openai
+CHAT_MODEL=gpt-4o-mini
+EMBEDDING_MODEL=text-embedding-3-small
+
+# Optional: Alternative providers
+# GROQ_API_KEY=gsk_...
+# TOGETHER_API_KEY=...
+# OLLAMA_URL=http://localhost:11434
+```
+
+### 6. LLM API Setup (M2 Features)
+
+For M2 features (web scraping, fact extraction, RAG), you need an LLM API key:
+
+**Option 1: OpenAI (Recommended)**
+1. Go to https://platform.openai.com/api-keys
+2. Create a new API key
+3. Add to `.env`: `OPENAI_API_KEY=sk-...`
+4. Cost: ~$0.15/1M tokens for gpt-4o-mini, ~$0.02/1M for embeddings
+
+**Option 2: Groq (Free, Fast)**
+1. Go to https://console.groq.com/keys
+2. Create a free API key
+3. Add to `.env`: `GROQ_API_KEY=gsk-...` and `LLM_PROVIDER=groq`
+4. Free tier with rate limits
+
+**Option 3: Together.ai (Free tier)**
+1. Go to https://api.together.xyz/
+2. Sign up and get API key
+3. Add to `.env`: `TOGETHER_API_KEY=...` and `LLM_PROVIDER=together`
+
+**Option 4: Ollama (Local, Free)**
+1. Install Ollama from https://ollama.ai/
+2. Run `ollama pull llama3.1:8b`
+3. Add to `.env`: `LLM_PROVIDER=ollama` and `OLLAMA_URL=http://localhost:11434`
 ```
 
 ### 5. Fejlesztői szerver indítása
@@ -140,6 +178,57 @@ npm run typecheck
 npm run lint
 ```
 
+## 🤖 M2 Features: AI-Powered Analysis
+
+### Using the Crawl & Analyze Features
+
+1. **Navigate to Admin Panel**: Go to `/admin/crawl` or click "Admin" in the navigation
+2. **Select an Event**: Click on any event from the list
+3. **Start Crawl**: Click "Start Crawl" to discover and fetch sources
+4. **Analyze Facts**: Once crawling is complete, click "Analyze Facts" to extract structured information
+5. **View Results**: Sources and facts will be displayed on the event detail page
+
+### API Endpoints
+
+**Crawl Sources**
+```bash
+POST /api/crawl
+{
+  "event_id": "evt_001",
+  "force": false,
+  "max_sources": 10
+}
+```
+
+**Analyze and Extract Facts**
+```bash
+POST /api/analyze
+{
+  "event_id": "evt_001",
+  "force": false
+}
+```
+
+**Get Sources and Facts**
+```bash
+GET /api/sources/:event_id
+```
+
+### Cost Estimates
+
+Based on OpenAI pricing (as of 2024):
+- **Crawling 10 sources**: ~$0.02 - $0.05
+  - Embeddings: ~20,000 tokens × $0.02/1M = $0.0004
+- **Fact Extraction**: ~$0.01 - $0.03
+  - Chat: ~5,000 tokens × $0.15/1M = $0.00075
+- **Per Event Total**: ~$0.03 - $0.08
+
+**Tips to reduce costs:**
+- Use Groq or Together.ai (free tiers available)
+- Use Ollama for local, free inference
+- Cache results (don't use `force: true` unnecessarily)
+- Limit `max_sources` parameter
+
 ## 🗺️ Roadmap
 
 ### ✅ M1: Tippmix API integráció + alap UI (Jelenlegi)
@@ -151,13 +240,19 @@ npm run lint
 - [x] TypeScript típusok
 - [x] Supabase SQL sémák és dokumentáció
 
-### 🚧 M2: Scraping + Fact Extraction (Következő)
-- [ ] Playwright integráció
-- [ ] Crawl4AI HTML→Markdown normalizálás
-- [ ] RSS/Atom feed parser
-- [ ] Chunk-olás és embeddings generálás
-- [ ] Faktum kinyerés (sérülések, formák, eltiltások)
-- [ ] Vector search implementálás
+### ✅ M2: Scraping + Fact Extraction (Befejezve)
+- [x] Playwright integráció
+- [x] HTML→Markdown normalizálás (@mozilla/readability, turndown)
+- [x] Multi-provider LLM támogatás (OpenAI, Groq, Together.ai, Ollama)
+- [x] Automatikus source discovery (DuckDuckGo keresés)
+- [x] Web scraping robots.txt ellenőrzéssel
+- [x] Chunk-olás és embeddings generálás
+- [x] Faktum kinyerés (sérülések, formák, eltiltások, taktikai változások)
+- [x] Vector search implementálás (pgvector)
+- [x] RAG-alapú Q&A rendszer
+- [x] Admin UI crawl kontrolokkal
+- [x] Event details bővítés források és tények megjelenítésével
+- [x] API endpoints (/api/crawl, /api/analyze, /api/sources)
 
 ### 🔮 M3: Predikció + Variációk (Jövőbeli)
 - [ ] RAG-alapú Q&A a meccsekről
