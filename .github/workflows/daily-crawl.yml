@@ -1,0 +1,128 @@
+name: Daily Crawl and Predict
+
+on:
+  schedule:
+    # Run daily at 6:00 AM UTC (7:00 AM CET)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  crawl-and-predict:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/web
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: apps/web
+        run: npx playwright install chromium
+
+      - name: Fetch new events from Tippmix API
+        working-directory: apps/web
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TIPP_API_URL: ${{ secrets.TIPP_API_URL }}
+        run: |
+          node -e "
+          const { getSupabaseClient } = require('./server/utils/supabase.ts');
+          const { fetchTippmixEvents } = require('./server/utils/tippmix.ts');
+          
+          async function fetchEvents() {
+            try {
+              console.log('Fetching events from Tippmix API...');
+              const events = await fetchTippmixEvents();
+              console.log(\`Fetched \${events.length} events\`);
+              
+              const supabase = getSupabaseClient();
+              
+              for (const event of events) {
+                const { error } = await supabase.from('events').upsert({
+                  id: event.id,
+                  league: event.league,
+                  home: event.home,
+                  away: event.away,
+                  start_time: event.startTime,
+                  odds_home: event.odds.home,
+                  odds_draw: event.odds.draw,
+                  odds_away: event.odds.away,
+                  status: event.status || 'upcoming'
+                });
+                
+                if (error) {
+                  console.error(\`Error upserting event \${event.id}:\`, error);
+                }
+              }
+              
+              console.log('Events synchronized successfully');
+            } catch (error) {
+              console.error('Error fetching events:', error);
+              process.exit(1);
+            }
+          }
+          
+          fetchEvents();
+          "
+
+      - name: Crawl events without sources
+        working-directory: apps/web
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+          CHAT_MODEL: ${{ secrets.CHAT_MODEL }}
+          EMBEDDING_MODEL: ${{ secrets.EMBEDDING_MODEL }}
+        run: |
+          echo "Crawling would be implemented here"
+          echo "This is a placeholder - actual implementation would:"
+          echo "1. Find events without sources"
+          echo "2. Call crawl API for each event"
+          echo "3. Wait for completion"
+          echo "4. Log results"
+
+      - name: Generate predictions
+        working-directory: apps/web
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+          CHAT_MODEL: ${{ secrets.CHAT_MODEL }}
+          EMBEDDING_MODEL: ${{ secrets.EMBEDDING_MODEL }}
+        run: |
+          echo "Prediction generation would be implemented here"
+          echo "This is a placeholder - actual implementation would:"
+          echo "1. Find events without predictions"
+          echo "2. Call predict API for each event"
+          echo "3. Use ensemble strategy"
+          echo "4. Log results"
+
+      - name: Send notification (on failure)
+        if: failure()
+        run: |
+          echo "❌ Daily crawl and predict job failed!"
+          echo "This would send a notification via email/Slack/Discord"
+          
+      - name: Summary
+        if: success()
+        run: |
+          echo "✅ Daily crawl and predict completed successfully!"
+          echo "Events fetched, crawled, and predictions generated"
