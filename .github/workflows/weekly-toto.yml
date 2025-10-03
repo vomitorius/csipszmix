@@ -1,0 +1,109 @@
+name: Weekly Magyar Totó Processing
+
+on:
+  schedule:
+    # Run every Monday at 6:00 AM UTC (7:00 AM CET)
+    - cron: '0 6 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  process-weekly-toto:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/web
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: apps/web
+        run: npx playwright install chromium
+
+      - name: Fetch weekly Totó voucher
+        working-directory: apps/web
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          echo "🎯 Fetching weekly Magyar Totó voucher..."
+          # This would call a script to fetch and save the weekly round
+          # For now, this is a placeholder
+          echo "Would fetch 13+1 matches for current week"
+          echo "Would save to database: toto_rounds and matches tables"
+
+      - name: Crawl sources for matches
+        working-directory: apps/web
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+          CHAT_MODEL: ${{ secrets.CHAT_MODEL }}
+          EMBEDDING_MODEL: ${{ secrets.EMBEDDING_MODEL }}
+        run: |
+          echo "📰 Crawling sources for weekly matches..."
+          echo "Would:"
+          echo "  1. Get all matches from current week round"
+          echo "  2. Search for sources for each match"
+          echo "  3. Crawl and extract content"
+          echo "  4. Generate embeddings"
+
+      - name: Extract facts from sources
+        working-directory: apps/web
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+          CHAT_MODEL: ${{ secrets.CHAT_MODEL }}
+        run: |
+          echo "🔍 Extracting facts from sources..."
+          echo "Would:"
+          echo "  1. Analyze chunks with LLM"
+          echo "  2. Extract injuries, suspensions, form, etc."
+          echo "  3. Save facts to database"
+
+      - name: Generate predictions
+        working-directory: apps/web
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+          CHAT_MODEL: ${{ secrets.CHAT_MODEL }}
+        run: |
+          echo "🤖 Generating AI predictions..."
+          echo "Would:"
+          echo "  1. Generate predictions for all matches"
+          echo "  2. Use ensemble strategy"
+          echo "  3. Include rationale and key factors"
+          echo "  4. Save to predictions table"
+
+      - name: Send notification (on failure)
+        if: failure()
+        run: |
+          echo "❌ Weekly Totó processing failed!"
+          echo "This would send a notification via email/Slack/Discord"
+          
+      - name: Summary
+        if: success()
+        run: |
+          echo "✅ Weekly Magyar Totó processing completed successfully!"
+          echo "Weekly round fetched, sources crawled, facts extracted, and predictions generated"

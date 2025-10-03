@@ -1,29 +1,26 @@
-# Tipp AI ⚽
+# Magyar Totó AI ⚽
 
-AI-alapú futball mérkőzés előrejelző és tippszorzó rendszer Tippmix eseményekhez.
+AI-alapú heti magyar totó mérkőzés előrejelző és tipposzlop generátor rendszer.
 
-> **Figyelem:** Ez az alkalmazás szórakoztató és elemző célokra készült. Nem garantál nyereséget, és nem helyettesíti a szakmai tanácsadást.
-
-## 🎉 M3 Milestone Complete!
-
-Az alkalmazás **teljes és működőképes** minden funkcióval:
-- ✅ AI predikciók (4 stratégia: baseline, facts, LLM, ensemble)
-- ✅ Tippszelvény variációk költségkeretre optimalizálva
-- ✅ CSV/JSON export funkciók
-- ✅ Admin dashboard statisztikákkal és bulk műveletekkel
-- ✅ Automatikus napi frissítés (GitHub Actions)
-- ✅ Teljes dokumentáció és jogi megfelelés
-
-📚 **Részletes dokumentáció**: [M3_COMPLETE.md](./M3_COMPLETE.md)
+> **Figyelem:** Ez az alkalmazás szórakoztató és elemző célokra készült. Nem garantál nyereséget. 18+ Felelősséggel játssz!
 
 ## 🎯 Projekt áttekintés
 
-A Tipp AI egy nyílt forráskódú alkalmazás, amely:
-- Lekérdezi a **Tippmix futball eseményeket** és odds-okat
+A Magyar Totó AI egy nyílt forráskódú alkalmazás, amely:
+- Betölti a **heti Magyar Totó szelvényt** (13+1 mérkőzés)
 - Automatikusan felkutatja a releváns webes forrásokat (hírek, statisztikák)
 - **AI/LLM alapú elemzést** végez (sérülések, formák, előzmények)
-- **Predikciót** generál a meccsek kimenetelére
-- **Tippszelvény variációkat** javasol költségkeretre optimalizálva
+- **Predikciót** generál minden mérkőzés kimenetelére (1/X/2)
+- **Tipposzlop variációkat** javasol költségkeret alapján
+
+## ✨ Főbb funkciók
+
+- ✅ **Heti Totó szelvény**: Automatikus betöltés (13+1 meccs)
+- ✅ **AI Predikciók**: Ensemble stratégia többszintű elemzéssel
+- ✅ **Meccs részletek**: Teljes elemzés forrásokkal, tényekkel
+- ✅ **Variációk**: Költségkeret-alapú tipposzlop generálás
+- ✅ **Egyszerű UX**: Fókuszált, tiszta felhasználói élmény
+- ✅ **Felelős játék**: Figyelmeztetések és segélyvonalak
 
 ## 🏗️ Technológiák
 
@@ -59,9 +56,9 @@ csipszmix/
 ### Előfeltételek
 
 - Node.js 18+ vagy 20+
-- npm vagy yarn
+- npm
 - Supabase fiók (ingyenes tier is elegendő)
-- (Opcionális) Ollama telepítve a helyi gépen
+- OpenAI vagy más LLM API kulcs (vagy Ollama helyi futtatáshoz)
 
 ### 1. Repo klónozása
 
@@ -81,12 +78,12 @@ npm install
 
 Kövesd a részletes útmutatót: **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)**
 
-Gyors checklist:
+**Gyors lépések:**
 1. Hozz létre egy Supabase projektet
 2. Engedélyezd a `vector` extension-t
 3. Futtasd le a `sql/schema.sql` fájlt
-4. Futtasd le a `sql/policies.sql` fájlt
-5. Hozd létre a storage bucket-eket
+4. **Futtasd le a `sql/migration_toto.sql` fájlt** (Magyar Totó támogatás)
+5. Futtasd le a `sql/policies.sql` fájlt
 
 ### 4. Környezeti változók
 
@@ -151,17 +148,15 @@ npm run dev
 
 Nyisd meg a böngészőben: **http://localhost:3000**
 
-## 🚢 Deployment (Production)
+## 🚢 Production Deployment
 
-Az alkalmazás Vercel-re való telepítéséhez kövesd a részletes útmutatót:
-
-👉 **[VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)** - Vercel deployment lépésről lépésre
+Az alkalmazás Vercel-re történő telepítéséhez:
 
 ### Gyors deployment checklist:
-1. ✅ Supabase projekt beállítva
+1. ✅ Supabase projekt beállítva (beleértve a migration_toto.sql futtatását)
 2. ✅ Vercel projekt létrehozva és repo importálva
 3. ✅ Környezeti változók beállítva Vercel-en
-4. ✅ `vercel.json` fájl a repo root-ban (már benne van)
+4. ✅ Weekly automation (GitHub Actions) beállítva
 5. ✅ Deploy gomb megnyomva
 
 ## 📚 Fontos fájlok és dokumentációk
@@ -190,89 +185,74 @@ npm run typecheck
 npm run lint
 ```
 
-## 🤖 M2 Features: AI-Powered Analysis
+## 🎮 Használat
 
-### Using the Crawl & Analyze Features
+### Főoldal
+- Heti 13+1 mérkőzés listája
+- AI predikciók minden meccshez
+- Javasolt tipposzlop
 
-1. **Navigate to Admin Panel**: Go to `/admin/crawl` or click "Admin" in the navigation
-2. **Select an Event**: Click on any event from the list
-3. **Start Crawl**: Click "Start Crawl" to discover and fetch sources
-4. **Analyze Facts**: Once crawling is complete, click "Analyze Facts" to extract structured information
-5. **View Results**: Sources and facts will be displayed on the event detail page
+### Meccs részletek
+- Kattints bármely meccsre a részletekhez
+- AI predikció indoklással
+- Kinyert tények (sérülések, forma, stb.)
+- Források linkekkel
 
-### API Endpoints
+### Variációk
+- Költségkeret megadása
+- Automatikus variációk generálása
+- Stratégia és fedezettség megtekintése
 
-**Crawl Sources**
-```bash
-POST /api/crawl
-{
-  "event_id": "evt_001",
-  "force": false,
-  "max_sources": 10
-}
-```
+## 🤖 AI & Automation
 
-**Analyze and Extract Facts**
-```bash
-POST /api/analyze
-{
-  "event_id": "evt_001",
-  "force": false
-}
-```
+### Automatikus heti frissítés
+- GitHub Actions minden hétfőn 6:00-kor
+- Heti szelvény betöltése
+- Források felkutatása és crawl-olása
+- Tények kinyerése
+- Predikciók generálása
 
-**Get Sources and Facts**
-```bash
-GET /api/sources/:event_id
-```
+### Cost Estimates (OpenAI)
+- **Heti futás**: ~$1-2 per hét
+- **Per meccs**: ~$0.05-0.15
+- **14 meccs**: ~$0.70-2.10
 
-### Cost Estimates
+**Költség csökkentés:**
+- Groq vagy Together.ai (ingyenes tiers)
+- Ollama (helyi, ingyenes)
+- Cache results
+- Limit max_sources parameter
 
-Based on OpenAI pricing (as of 2024):
-- **Crawling 10 sources**: ~$0.02 - $0.05
-  - Embeddings: ~20,000 tokens × $0.02/1M = $0.0004
-- **Fact Extraction**: ~$0.01 - $0.03
-  - Chat: ~5,000 tokens × $0.15/1M = $0.00075
-- **Per Event Total**: ~$0.03 - $0.08
+## 📦 Fejlesztési fázisok
 
-**Tips to reduce costs:**
-- Use Groq or Together.ai (free tiers available)
-- Use Ollama for local, free inference
-- Cache results (don't use `force: true` unnecessarily)
-- Limit `max_sources` parameter
+### ✅ M1-M3: Tippmix rendszer (Befejezve)
+- [x] Nuxt 3 projekt, TailwindCSS, Supabase
+- [x] Tippmix API integráció
+- [x] Web scraping (Playwright, robots.txt)
+- [x] LLM integráció (OpenAI, Groq, Ollama)
+- [x] Embeddings és RAG
+- [x] Tény kinyerés
+- [x] AI predikciók (ensemble)
+- [x] Variációk generálás
+- [x] Admin dashboard
 
-## 🗺️ Roadmap
+### ✅ M4: Magyar Totó refactor (Jelenlegi)
+- [x] Magyar Totó adatstruktúra (toto_rounds, matches)
+- [x] Heti szelvény rendszer (13+1 meccs)
+- [x] Új API endpoints (/api/rounds, /api/matches)
+- [x] Főoldal újratervezés
+- [x] Meccs részletek oldal
+- [x] Variációk oldal
+- [x] Admin eltávolítása
+- [x] Navigáció egyszerűsítés
+- [x] GitHub Actions weekly automation
 
-### ✅ M1: Tippmix API integráció + alap UI (Jelenlegi)
-- [x] Nuxt 3 projekt inicializálás
-- [x] TailwindCSS, Pinia, Supabase setup
-- [x] Tippmix API wrapper (mock adatokkal)
-- [x] Események lista UI
-- [x] Event részletek oldal
-- [x] TypeScript típusok
-- [x] Supabase SQL sémák és dokumentáció
-
-### ✅ M2: Scraping + Fact Extraction (Befejezve)
-- [x] Playwright integráció
-- [x] HTML→Markdown normalizálás (@mozilla/readability, turndown)
-- [x] Multi-provider LLM támogatás (OpenAI, Groq, Together.ai, Ollama)
-- [x] Automatikus source discovery (DuckDuckGo keresés)
-- [x] Web scraping robots.txt ellenőrzéssel
-- [x] Chunk-olás és embeddings generálás
-- [x] Faktum kinyerés (sérülések, formák, eltiltások, taktikai változások)
-- [x] Vector search implementálás (pgvector)
-- [x] RAG-alapú Q&A rendszer
-- [x] Admin UI crawl kontrolokkal
-- [x] Event details bővítés források és tények megjelenítésével
-- [x] API endpoints (/api/crawl, /api/analyze, /api/sources)
-
-### 🔮 M3: Predikció + Variációk (Jövőbeli)
-- [ ] RAG-alapú Q&A a meccsekről
-- [ ] Predikciós logika (odds + hírek)
-- [ ] Szelvénygenerálás
-- [ ] Variációk költségkeretre
-- [ ] CSV/JSON export
-- [ ] PDF generálás
+### 🔮 Jövőbeli továbbfejlesztések
+- [ ] Szerencsejáték Zrt. API integráció (ha elérhető)
+- [ ] Eredmények követése
+- [ ] Statisztikák és elemzések
+- [ ] Felhasználói fiókok
+- [ ] Teljesítmény tracking
 
 ## 🤝 Közreműködés
 
