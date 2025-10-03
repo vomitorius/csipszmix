@@ -1,0 +1,5 @@
+# Vercel build output (copied from apps/web during build)
+.vercel
+
+# Node modules
+node_modules
