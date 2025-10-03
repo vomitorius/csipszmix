@@ -36,9 +36,11 @@ A projekt import képernyőn állítsd be a következőket:
 
 #### Build and Output Settings
 Ezeket a `vercel.json` automatikusan kezeli, de ellenőrizd:
-- **Build Command**: `cd apps/web && npm install && npm run build`
+- **Build Command**: `cd apps/web && npm install && npm run build && cd ../.. && cp -r apps/web/.vercel .vercel`
 - **Install Command**: `cd apps/web && npm install`
 - **Output Directory**: Hagyd üresen - a Nuxt 3 Vercel preset automatikusan kezeli
+
+**Fontos:** A monorepo struktúra miatt a build parancs végén a `.vercel` könyvtár átmásolása szükséges a repo root-ba, hogy Vercel megtalálja.
 
 ### 4. Környezeti változók beállítása
 
@@ -134,12 +136,14 @@ Ha sikeres:
 - Hibás `outputDirectory` beállítás a `vercel.json`-ban (Nuxt 3 SSR alkalmazásoknál nem kell)
 - A `.vercelignore` fájl blokkolja a `.vercel/output/` directory-t
 - Hiányzó vagy helytelen Vercel preset a `nuxt.config.ts`-ben
+- **Monorepo esetén**: A `.vercel/output/` nincs a repo root-ban
 
 **Megoldás:**
 1. Ellenőrizd, hogy a `nuxt.config.ts` tartalmazza: `nitro: { preset: 'vercel' }`
 2. Ellenőrizd, hogy a `vercel.json` **NEM** tartalmaz `outputDirectory` beállítást
-3. Ellenőrizd, hogy a `.vercelignore` fájl **nem** blokkolja az `apps/web/.vercel` könyvtárat
-4. Próbáld újra deployolni
+3. Ellenőrizd, hogy a `.vercelignore` fájl **nem** blokkolja a `.vercel` könyvtárat
+4. **Monorepo esetén**: Ellenőrizd, hogy a `buildCommand` átmásolja a `.vercel` könyvtárt a repo root-ba: `&& cd ../.. && cp -r apps/web/.vercel .vercel`
+5. Próbáld újra deployolni
 
 ### ❌ Üres oldal / "Application error"
 
