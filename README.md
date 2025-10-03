@@ -4,6 +4,18 @@ AI-alapú futball mérkőzés előrejelző és tippszorzó rendszer Tippmix esem
 
 > **Figyelem:** Ez az alkalmazás szórakoztató és elemző célokra készült. Nem garantál nyereséget, és nem helyettesíti a szakmai tanácsadást.
 
+## 🎉 M3 Milestone Complete!
+
+Az alkalmazás **teljes és működőképes** minden funkcióval:
+- ✅ AI predikciók (4 stratégia: baseline, facts, LLM, ensemble)
+- ✅ Tippszelvény variációk költségkeretre optimalizálva
+- ✅ CSV/JSON export funkciók
+- ✅ Admin dashboard statisztikákkal és bulk műveletekkel
+- ✅ Automatikus napi frissítés (GitHub Actions)
+- ✅ Teljes dokumentáció és jogi megfelelés
+
+📚 **Részletes dokumentáció**: [M3_COMPLETE.md](./M3_COMPLETE.md)
+
 ## 🎯 Projekt áttekintés
 
 A Tipp AI egy nyílt forráskódú alkalmazás, amely:
