@@ -7,6 +7,8 @@
       </p>
     </div>
 
+    <DisclaimerBanner />
+
     <!-- Ticket Builder -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">Szelvény Generátor</h2>
@@ -114,7 +116,27 @@
     <div v-if="generatedVariants" class="space-y-6">
       <!-- Summary Panel -->
       <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 p-6">
-        <h2 class="text-xl font-semibold mb-4">Összefoglaló</h2>
+        <div class="flex justify-between items-start mb-4">
+          <h2 class="text-xl font-semibold">Összefoglaló</h2>
+          <div class="flex gap-2">
+            <a
+              :href="`/api/export/csv?type=predictions&event_ids=${selectedEventIds.join(',')}`"
+              target="_blank"
+              class="px-3 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+            >
+              <span>📄</span>
+              CSV Export
+            </a>
+            <a
+              :href="`/api/export/json?type=predictions&event_ids=${selectedEventIds.join(',')}`"
+              target="_blank"
+              class="px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <span>📦</span>
+              JSON Export
+            </a>
+          </div>
+        </div>
         <div class="grid md:grid-cols-4 gap-4">
           <div>
             <p class="text-sm text-gray-600">Összes szelvény</p>

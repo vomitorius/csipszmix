@@ -1,2 +1,13 @@
-User-Agent: *
-Disallow:
+# TipMix AI - Robots.txt
+# This application respects robots.txt directives when crawling external sites
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap location (if generated)
+# Sitemap: https://your-domain.com/sitemap.xml
+
+# Crawl delay (be polite)
+Crawl-delay: 1
