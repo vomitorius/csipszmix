@@ -3,20 +3,14 @@
  * Supports fetching the weekly 13+1 football matches from various sources
  */
 
-export interface TotoMatch {
+import type { TotoRound } from './types'
+
+interface TotoMatch {
   order: number           // 1-14 (position on the voucher)
   home: string            // Home team name
   away: string            // Away team name
   league: string          // League/competition name
   kickoff: string         // Match start time (ISO 8601)
-}
-
-export interface TotoRound {
-  id: string              // "2025-week-40"
-  week_label: string      // "40. hét"
-  week_start: string      // "2025-10-06" (Monday)
-  week_end: string        // "2025-10-12" (Sunday)
-  matches: TotoMatch[]    // 14 matches (13+1)
 }
 
 /**
@@ -92,7 +86,7 @@ function formatDate(date: Date): string {
  * Generate mock Totó data for development
  * This simulates a weekly 13+1 match voucher
  */
-function getMockTotoRound(): TotoRound {
+function getMockTotoRound() {
   const { weekNumber, start, end } = getCurrentWeek()
   const year = start.getFullYear()
   
@@ -200,11 +194,27 @@ function getMockTotoRound(): TotoRound {
   
   return {
     id: `${year}-week-${weekNumber}`,
-    week_label: `${weekNumber}. hét`,
-    week_start: formatDate(start),
-    week_end: formatDate(end),
-    matches: mockMatches
-  }
+    weekNumber,
+    weekLabel: `${weekNumber}. hét`,
+    weekStart: formatDate(start),
+    weekEnd: formatDate(end),
+    year,
+    status: 'active' as const,
+    matches: mockMatches.map(m => ({
+      id: `match-${year}-w${weekNumber}-${m.order}`,
+      roundId: `${year}-week-${weekNumber}`,
+      matchOrder: m.order,
+      league: m.league,
+      home: m.home,
+      away: m.away,
+      kickoff: m.kickoff,
+      status: 'upcoming' as const,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    })),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  } as TotoRound
 }
 
 /**
